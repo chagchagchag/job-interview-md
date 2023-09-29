@@ -4,7 +4,7 @@
 
 2.4.x 이후로 변경된 Spring Profile 에 yml 파일을 그룹화하거나 일부 속성을 공통화해서 재사용하는 방식에 대한 이야기다. <br>
 
-yml 파일을 잘 구성해서 공통부분 분리 잘하고 유연하게 변경 가능하게 yml 을 만들줄 알면 spring cloud config 서버가 참조할 yml 속성 구조 작성시에 도움이 꽤 되는 것 같다.<br>
+yml 파일을 잘 구성해서 공통부분 분리 잘하고 유연하게 변경 가능하게 yml 을 만들줄 알면 spring cloud config 서버가 참조할 yml 속성 구조 작성시에 도움이 꽤 된다. 아마도 이걸 모르면 yml 파일을 수없이 만들고 수없이 수정하고 수없이 실수하고를 반복하지 않을까 싶기도..ㅋㅋ<br>
 
 <br>
 
@@ -250,7 +250,7 @@ java -jar build/libs/profile_example-0.0.1-SNAPSHOT.jar --spring.profiles.active
 
 
 
-Run Configurations 에서 prod 설정 후 실행
+Run Configurations 에서 dev 설정 후 실행
 
 <img src="./img/SPRING-PROFILE/2.png"/>
 
