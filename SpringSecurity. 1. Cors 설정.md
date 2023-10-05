@@ -34,7 +34,8 @@ class CorsFilterConfig {
 
 
 - (1) 
-  - 쿠키 요청을 허용한다. 디폴트 값은 false 로 선언된다. 쿠키 요청은 보안상 취약하기에 디폴트 설정은 false 로 적용되어 있다.
+  - 기본 값은 false 다. 쿠키 요청이나 신뢰성 있는 토큰 요청 등을 허용하려면 true 로 세팅한다. 스프링 시큐리티의 CorsConfiguration 내에서 지정하는 디폴트 값은 false 로 선언되어 있다. 
+  - 참고 : [CorsConfiguration](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/cors/CorsConfiguration.html#setAllowCredentials(java.lang.Boolean))
   - OAuth 처럼 다른 도메인에서 인증하는 경우 (e.g. auth.google.com ↔ user.abc.com) 에만 허용(true)한다.
   - 구글 로그인 기능도 추가할 것이기에 true 로 지정했다.
 
