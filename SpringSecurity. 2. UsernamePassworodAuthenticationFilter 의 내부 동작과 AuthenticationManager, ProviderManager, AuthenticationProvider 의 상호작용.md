@@ -36,9 +36,13 @@ OAuth2 Spring Security 인증관련 자료는 [여기](https://junuuu.tistory.co
 
 ### 참고자료
 
-- [Spring Security Authentication](https://www.javadevjournal.com/spring-security/spring-security-authentication/)
-- [Spring Security Authentication Provider](https://www.baeldung.com/spring-security-authentication-provider)
-- [DaoAuthenticationProvider](https://docs.spring.io/spring-security/reference/servlet/authentication/passwords/dao-authentication-provider.html)
+- [javadevjournal.com | Spring Security Authentication](https://www.javadevjournal.com/spring-security/spring-security-authentication/)
+- [Baeldung | Spring Security Authentication Provider](https://www.baeldung.com/spring-security-authentication-provider)
+- docs
+  - [AuthenticationProvider](https://docs.spring.io/spring-security/site/docs/current/api/org/springframework/security/authentication/AuthenticationProvider.html)
+  - [DaoAuthenticationProvider](https://docs.spring.io/spring-security/reference/servlet/authentication/passwords/dao-authentication-provider.html)
+  - [UserDetailsService](https://docs.spring.io/spring-security/site/docs/current/api/org/springframework/security/core/userdetails/UserDetailsService.html#loadUserByUsername(java.lang.String))
+
 
 
 
@@ -181,7 +185,141 @@ class JwtAuthenticationFilter (
 
 ### ProviderManager
 
-이름을 보고 이해하면 쉽게 기억할 수 있다. <u>Provider</u>Manager 객체는 Authentication<u>Provider</u> 를 관리하는 <u>Manager</u> 역할의 객체다. 참고로 위에서 정리했듯 AuthenticationManager 로부터 시작되는 객체의 상호작용은 <u>AuthenticationManager → ProviderManager → AuthenticationProvider → UserDetailsService</u> 의 순서로 객체가 상호작용을 한다.<br>
+이름을 보고 이해하면 쉽게 기억할 수 있다. 
+
+- <u>Provider</u>Manager 객체는 Authentication<u>Provider</u> 를 관리하는 <u>Manager</u> 역할의 객체다. 
+
+<br>
+
+참고로 위에서 정리했듯 AuthenticationManager 로부터 시작되는 객체의 상호작용은 <u>AuthenticationManager → ProviderManager → AuthenticationProvider → UserDetailsService</u> 의 순서로 객체가 상호작용을 한다.<br>
+
+<br>
+
+
+
+스프링에서 제공되는 ProviderManager 클래스 내의 authenticate(auth) 메서드의 일부분을 발췌한 내용은 아래와 같다.
+
+이 코드의 주요 흐름을 한문장으료 요약하면 이렇다.
+
+- Provider 중 authenticate()를 통해 인증을 거친 result가 null 이 아닌 결과가 아닐 경우 부가적인 후처리를 수행 후 result 를 return 한다.
+
+```java
+public class ProviderManager implements AuthenticationManager, MessageSourceAware, InitializingBean {
+
+  // ...
+  
+	@Override
+	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+    // 중략 ...
+    for (AuthenticationProvider provider : getProviders()) {
+      if (!provider.supports(toTest)) {
+				continue;
+			}
+      // ...
+      try {
+				result = provider.authenticate(authentication);
+				if (result != null) {
+					copyDetails(authentication, result);
+					break;
+				}
+			}
+			catch (AccountStatusException | InternalAuthenticationServiceException ex) {
+				// ...
+			}
+      // ...
+    }
+    
+    if (result != null) {
+			if (this.eraseCredentialsAfterAuthentication && (result instanceof CredentialsContainer)) {
+				((CredentialsContainer) result).eraseCredentials();
+			}
+			if (parentResult == null) {
+				this.eventPublisher.publishAuthenticationSuccess(result);
+			}
+
+			return result;
+		}
+    
+  }
+  
+  // ...
+}
+```
+
+
+
+### AuthenticationProvider
+
+AuthenticationProvider 는 종류가 엄청나게 많다. 위에서 살펴본 ProviderManager 객체는 이 중에서 우선순위가 높은 AuthentiationProvider 의 인증의 결과가 정상이면 결과값인 Authentication 객체를 AuthenticationManager 에 리턴한다.
+
+<img src="https://prod-acb5.kxcdn.com/wp-content/uploads/2020/06/AuthenticationProvider.png.webp" width="60%" height="60%"/>
+
+> 그림 출처 : [Spring Security Authentication](https://www.javadevjournal.com/spring-security/spring-security-authentication/)
+
+<br>
+
+
+
+AuthenticaitonProvider 들에는 아래와 같은 것들이 있다.
+
+1. DaoAuthenticationProvider.
+2. JAAS Authentication
+3. OpenID Authentication
+4. X509 Authentication
+5.  SAML 2.0
+6. OAuth 2.0
+7. RememberMeAuthenticationProvider
+8. LdapAuthenticationProvider
+
+<br>
+
+AuthenticationProvider 를 직접 구현해서 Bean 으로 등록하지 않는다면, 스프링시큐리티는 DaoAuthenticationProvider 를 디폴트로 설정하고 있기에 DaoAuthenticationProvider 를 이용해 UserDetailsService 를 접근한다.
+
+<img src="https://docs.spring.io/spring-security/reference/_images/servlet/authentication/unpwd/daoauthenticationprovider.png" width="60%" height="60%"/>
+
+> 그림 출처 : [https://docs.spring.io/spring-security/reference/servlet/authentication/passwords/dao-authentication-provider.html](https://docs.spring.io/spring-security/reference/servlet/authentication/passwords/dao-authentication-provider.html)
+
+<br>
+
+
+
+### UserDetailsService
+
+AuthenticationProvider 를 직접 구현해서 Bean 으로 등록하지 않는다면, 스프링시큐리티는 DaoAuthenticationProvider 를 디폴트로 설정한다. DaoAuthenticationProvider 는 `read-only` DAO 인 `UserDetailsService` 을 사용하고, UserDetailsService 는 username 만을 이용해 접근하기에 단순한 인증로직에만 적합하고, 복잡한 인증 로직에는 적합하지 않다.<br>
+
+ 조금 더 복잡한 비즈니스 로직을 구현하려면 Custom 하게 AuthenticationProvider 를 구현해서 사용한다.
+
+- 여기에 대해서는 [Spring Security Authentication Provider](https://www.baeldung.com/spring-security-authentication-provider) 를 참고하자.
+
+<br>
+
+
+
+```JAVA
+@Service
+public class CustomUserDetailsService implements UserDetailsService {
+
+    private final UsersRepository usersRepository;
+
+    public CustomUserDetailsService(UsersRepository usersRepository){
+        this.usersRepository = usersRepository;
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Users user = usersRepository.findByUsername(username);
+      	if(user == null) throw new UsernameNotFoundException("사용자가 존재하지 않습니다")
+        return new CustomUserDetails(user);
+    }
+}
+
+```
+
+<BR>
+
+
+
+
 
 
 
