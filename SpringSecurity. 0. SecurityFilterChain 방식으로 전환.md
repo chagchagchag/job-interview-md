@@ -88,7 +88,13 @@ public class SecurityConfig {
 
 #### JwtAuthenticationFilter
 
-JwtAuthenticationFilter 는 아래와 같이 작성해줬다.
+JwtAuthenticationFilter 는 아래와 같이 작성해줬다. 
+
+> - Bean 으로 등록해서 사용해도 되긴 하지만, 아래 코드는 Bean 으로 등록했던 코드는 아니다. 굳이 Bean으로 등록해야할까? 하고 생각하면서 일반 클래스로 정의했었다.
+>
+> - 어쩌면 SecurityConfig 클래스 내에 inner 클래스로 선언해두는게 더 나았을까 싶기도 하다.
+
+
 
 ```java
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
