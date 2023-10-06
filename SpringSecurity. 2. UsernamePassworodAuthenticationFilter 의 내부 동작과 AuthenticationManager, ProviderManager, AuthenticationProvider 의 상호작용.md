@@ -10,14 +10,13 @@ OAuth2 Spring Security 인증관련 자료는 [여기](https://junuuu.tistory.co
 
 내용을 정리하기에 앞서서 생각의 지도를 만들어보자.
 
-이번 MSA + DDD 예제에서 10월달 구현 버전에서 만들어서 사용할 필터는 아래와 같다.
-
-아래의 두 필터를 SecurityFilterChain 에서 순서대로 거치도록 SecurityConfig 를 구현해둔다.
+이번 MSA + DDD 예제에서 10월달 구현 버전에서 만들어서 사용할 필터는 아래의 두 필터 들이다. 일반적으로 아래의 두 필터를 사용할 때는 SecurityFilterChain 에서 원하는 순서대로 필터들을 거치도록 필터들을 등록하는 방식으로 SecurityConfig 를 작성한다.
 
 - JwtAuthenticationFilter : UsernamePasswordAuthenticationFilter
   - id,pw 로 최초 로그인시에 거치는 필터다.
-  - 앞서 JwtAuthenticationFilter 라고 하는 Filter를 만들었다. UsernamePasswordAuthenticationFilter 를 구현한 Filter 다. 
-  - 존재하는 사용자인지를 판단하고 이것을 기반으로 Authentication 객체를 만들어내기 위한 목적의 필터다.
+  - AuthenticationManager의 authenticate() 를 이용해 존재하는 사용자인지를 판단하고 이 것을 기반으로 Authentication 객체를 만들어내기 위한 목적의 필터다.
+  - AuthenticationManager 객체의 authenticate() 를 호출하도록 정의해서 내부적인 스프링시큐리티의 콜스택을 통해 사용자 검증을 거치도록 내부를 구현한다.
+  - 앞에서 정리한 SecurityFilterChain 설명 문서에서는 JwtAuthenticationFilter 라는 필터를 예로 들었었다. 이때 사용했던 JwtAuthenticationFilter 는 UsernamePasswordAuthenticationFilter 를 구현한 Filter를 사용했었다.
   
 - GrantSecurityContextFilter: BasicAuthenticationFilter
   - JWT 토큰을 통해 인증을 할때 거치는 필터다.
@@ -47,12 +46,6 @@ OAuth2 Spring Security 인증관련 자료는 [여기](https://junuuu.tistory.co
 
 
 <br>
-
-자료는 'Spring Security Authentication' 이라는 검색어로 구글에서 검색해서 찾았다. [그림](https://prod-acb5.kxcdn.com/wp-content/uploads/2019/09/Spring-Security-Architecture-.png.webp) 과 유사한 그림이 한국 블로그에 많이 돌아다니는데, 원본 출처가 폐쇄된 상태라 새로운 자료를 찾던 중에 찾은 자료. 그림이 어째 더 깔끔하네? ㅎㅎ
-
-<br>
-
-
 
 
 
@@ -201,7 +194,7 @@ class JwtAuthenticationFilter (
 
 이 코드의 주요 흐름을 한문장으료 요약하면 이렇다.
 
-- Provider 중 authenticate()를 통해 인증을 거친 result가 null 이 아닌 결과가 아닐 경우 부가적인 후처리를 수행 후 result 를 return 한다.
+- Provider 중 authenticate()를 통해 인증을 거친 result가 null 이 아닐 경우에만 부가적인 후처리를 수행 후 result 를 return 한다.
 
 ```java
 public class ProviderManager implements AuthenticationManager, MessageSourceAware, InitializingBean {
@@ -246,6 +239,8 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 }
 ```
 
+<br>
+
 
 
 ### AuthenticationProvider
@@ -272,6 +267,8 @@ AuthenticaitonProvider 들에는 아래와 같은 것들이 있다.
 8. LdapAuthenticationProvider
 
 <br>
+
+
 
 AuthenticationProvider 를 직접 구현해서 Bean 으로 등록하지 않는다면, 스프링시큐리티는 DaoAuthenticationProvider 를 디폴트로 설정하고 있기에 DaoAuthenticationProvider 를 이용해 UserDetailsService 를 접근한다.
 
