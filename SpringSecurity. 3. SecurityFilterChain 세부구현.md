@@ -33,7 +33,7 @@ class SecurityConfig (
         try{
             val authenticationManager = authenticationConfiguration.authenticationManager
             val jwtAuthenticationFilter = JwtAuthenticationFilter(authenticationManager)
-            jwtAuthenticationFilter.setFilterProcessesUrl("/users/login")
+            jwtAuthenticationFilter.setFilterProcessesUrl("/login")
 
             return httpSecurity
                 .csrf { it.disable() }
@@ -48,13 +48,14 @@ class SecurityConfig (
                         AntPathRequestMatcher("/"),
                         AntPathRequestMatcher("/img/**"),
                         AntPathRequestMatcher("/css/**"),
-                        AntPathRequestMatcher("/users/signup"),
+                        AntPathRequestMatcher("/signup"),
+                      	AntPathRequestMatcher("/login"),
                     )
                     .permitAll()
                     .requestMatchers(
-                        AntPathRequestMatcher("/users/logout"),
-                        AntPathRequestMatcher("/users/detail"),
+                        AntPathRequestMatcher("/logout"),
                         AntPathRequestMatcher("/users/**"),
+	                      AntPathRequestMatcher("/health-check"),
                     )
                     .hasAnyAuthority("ROLE_USER", "ROLE_MANAGER", "ROLE_ADMIN")
                 }
@@ -96,7 +97,7 @@ public class SecurityConfig {
             AuthenticationManager authenticationManager = authenticationConfiguration.getAuthenticationManager();
           	// /users/login 에서 Filter 가 동작하도록 설정
             JwtAuthenticationFilter authenticationFilter = new JwtAuthenticationFilter(authenticationManager);
-            authenticationFilter.setFilterProcessesUrl("/users/login");
+            authenticationFilter.setFilterProcessesUrl("/login");
 
             JwtAuthorizationFilter authorizationFilter = new JwtAuthorizationFilter(authenticationManager, usersRepository);
 
@@ -105,7 +106,7 @@ public class SecurityConfig {
                     .formLogin().disable()
                     .httpBasic().disable()
                     .addFilter(corsFilter)              // 직접 작성한 corsFilter
-                    .addFilter(authenticationFilter)    // 직접 작성한 authenticationFilter ("/users/login") 에서만 발동
+                    .addFilter(authenticationFilter)    // 직접 작성한 authenticationFilter ("/login") 에서만 발동
                     .addFilter(authorizationFilter)     // 직접 작성한 authorizationFilter
                     .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                     .and()
@@ -115,13 +116,14 @@ public class SecurityConfig {
                             new AntPathRequestMatcher("/"),
                             new AntPathRequestMatcher("/img/**"),
                             new AntPathRequestMatcher("/css/**"),
-                            new AntPathRequestMatcher("/users/signup")
+                            new AntPathRequestMatcher("/signup"),
+							              new AntPathRequestMatcher("/login")
                     )
                     .permitAll()
                     .requestMatchers(
-                            new AntPathRequestMatcher("/users/logout"),
-                            new AntPathRequestMatcher("/users/detail"),
-                            new AntPathRequestMatcher("/users/**")
+                            new AntPathRequestMatcher("/logout"),
+                            new AntPathRequestMatcher("/users/**"),
+							              new AntPathRequestMatcher("/health-check")
                     )
                     .hasAnyAuthority("ROLE_USER", "ROLE_MANAGER", "ROLE_ADMIN")
                     .and()
