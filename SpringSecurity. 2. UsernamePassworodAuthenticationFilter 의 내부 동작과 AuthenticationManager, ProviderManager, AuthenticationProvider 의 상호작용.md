@@ -69,9 +69,9 @@ UsernamePasswordAuthenticationFilter 를 상속해서 필터를 등록할 때는
 
 
 
-#### attempAuthentication() 내부에 정의할 주요 흐름
+#### attempAuthentication() 구현해보기
 
-UsernamePasswordAuthenticationFilter 를 구현한 JwtAuthenticationFilter 내의 인증시도 구문인 attemptAuthentication() 에서는  AuthenticationManager 를 주입받은 후  AuthenticationManager → ProviderManager → AuthenticationProvider → UserDetailsService 를 이용해 DB에 사용자가 존재하는지를 검색한다.
+UsernamePasswordAuthenticationFilter 를 구현한 JwtAuthenticationFilter 내의 인증시도 구문인 attemptAuthentication() 에서는  AuthenticationManager 를 주입받은 후 AuthenticationManager → ProviderManager → AuthenticationProvider → UserDetailsService 의 순서로 상호작용을 하면서 DB에 사용자가 존재하는지를 검색하는 과정을 거친다. 
 
 ```kotlin
 package net.spring.cloud.prototype.userservice.domain.config.security.filter

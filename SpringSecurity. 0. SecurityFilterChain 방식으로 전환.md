@@ -54,6 +54,8 @@ public class SecurityConfig {
           	// (2)
           	// JwtAuthenticationFilter 클래스는 내가 직접 만든 클래스다.
             JwtAuthenticationFilter authenticationFilter = new JwtAuthenticationFilter(authenticationManager);
+          	// 필터가 로그인 동작으로 판단해 동작하도록 인식할 URL 을 지정한다.
+          	authenticationFilter.setFilterProcessUrl("/users/login");
 
             httpSecurity
                     .csrf(c -> c.disable())
