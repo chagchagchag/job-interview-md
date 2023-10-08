@@ -28,18 +28,19 @@ class SecurityConfig (
 
     @Bean
     fun filterChain(httpSecurity: HttpSecurity,
-                    authenticationConfiguration: AuthenticationConfiguration)
-    : SecurityFilterChain {
+                    authenticationConfiguration: AuthenticationConfiguration,
+                    corsFilter: CorsFilter
+    ): SecurityFilterChain {
         try{
             val authenticationManager = authenticationConfiguration.authenticationManager
             val jwtAuthenticationFilter = JwtAuthenticationFilter(authenticationManager)
-            jwtAuthenticationFilter.setFilterProcessesUrl("/login")
 
             return httpSecurity
                 .csrf { it.disable() }
                 .formLogin { it.disable() }
                 .httpBasic { it.disable() }
-                .addFilter(jwtAuthenticationFilter)
+                .addFilter(corsFilter)
+          			.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
                 .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
                 .headers { customizer -> customizer.frameOptions { it.disable() } }
                 .authorizeHttpRequests {}
