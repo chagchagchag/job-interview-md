@@ -59,6 +59,18 @@
 - order-service 는 이것을 저장하기 위한 토픽인 `order-request-topic` 에 요청을 쌓는다. 그리고 `order-request-topic` 에는 kafka-connect 를 구동시켜둔 상태다. 따라서 kafka-connect 가 데이터 저장을 담당한다.
 - order-service 는 order-request 역시 catalog-service 에 동기화시켜줘야 한다. catalog-service 와 order-service 는 `catalog-refresh-topic` 을 바라보고 있다. 따라서 order-service는 요청이 발생했음을 알리는 `catalog-refresh-topic` 에 주문수량에 대한 이벤트를 전달한다. 그리고 catalog-service 는 `catalog-refresh-topic` 을 listen 하고 있다가 이벤트가 발생하면 이것을 H2에 저장하거나 SSE로 클라이언트에 렌더링하는 작업을 수행한다.
 
+<br>
+
+
+
+### 카프카 메시징 트랜잭션 처리
+
+메시징이 실패하는 경우에도 rollback 등의 동작이 필요하다. 이 부분은 카프카 개념에 해당하는 개념이기에 이번 문서의 주제에서 벗어나서 카프카 트랜잭션 관련된 자료들만 남겨두기로 했다. 
+
+- [광고정산 시스템에 Kafka Streams 도입하기](https://www.bucketplace.com/post/2022-05-20-%EA%B4%91%EA%B3%A0-%EC%A0%95%EC%82%B0-%EC%8B%9C%EC%8A%A4%ED%85%9C%EC%97%90-kafka-streams-%EB%8F%84%EC%9E%85%ED%95%98%EA%B8%B0/)
+
+<br>
+
 
 
 ### etc
